@@ -1,22 +1,13 @@
-import os
 import statistics as stat
 import matplotlib.pyplot as plt
-
-os.getcwd()
-print(os.getcwd())
-
-# Prepare data
-file_object = open(os.getcwd() + "\gpa.txt", "r")
-student_data = [line.strip().split(' ') for line in file_object.readlines()]
-
-print("student data: ", student_data)
+import numpy as np
 
 
-def get_column_data(column_index):
+def get_column_data(column_index, dataset):
     column_data = []
 
     # For each entry in the "student_data" list
-    for entry in student_data:
+    for entry in dataset:
         # Append all data from column with given column index into this list
         column_data.append(float(entry[column_index]))
 
@@ -24,40 +15,6 @@ def get_column_data(column_index):
     return column_data
 
 
-print("num records: ", len(student_data))
-
-# Fetch all the data from a column of a specific index
-hs_col_data = get_column_data(0)
-math_col_data = get_column_data(1)
-verb_col_data = get_column_data(2)
-cs_col_data = get_column_data(3)
-uni_col_data = get_column_data(4)
-
-# Sum all the GPA data for math and verbal GPA
-math_sum = sum(math_col_data)
-verb_sum = sum(verb_col_data)
-
-# Results
-print("Sum Math Grade: ", int(math_sum))
-print("Sum Verbal Grade: ", int(verb_sum))
-print("Math Mean: ", round(math_sum / len(student_data)))
-print("Verbal Mean: ", round(verb_sum / len(student_data)))
-print("Standard Deviation - Math: ", round(stat.stdev(math_col_data), 4))
-print("Standard Deviation - Verb: ", round(stat.stdev(verb_col_data), 4))
-
-# TODO: Draw a Scatter plot comparing the student's high school gpas to their overall GPAs.
-plt.scatter(hs_col_data, uni_col_data)
-#plt.plot(x_data, y_data, label="Second Line", color="#a3435d")
-
-# Adding Labels
-plt.xlabel("High School GPA")
-plt.ylabel("Overall University GPA")
-
-# Render buffer
-plt.show()
-
-
-# TODO: Find the correlation between high school GPA and overall university GPA.
 def calc_covariance(x, y, x_label="X mean", y_label="Y mean"):
     summed_xy_diff = 0
 
@@ -80,16 +37,39 @@ def calc_covariance(x, y, x_label="X mean", y_label="Y mean"):
         # Sum the xy difference for all pairs in the data set
         summed_xy_diff += xy_diff
 
-    # STEP 6: Divide summed difference by n-1
+    # Divide summed difference by n-1
     covariance = summed_xy_diff/(len(x)-1)
     return covariance
 
 
-hs_and_uni_cov = calc_covariance(hs_col_data, uni_col_data, "HS Mean", "Overall Mean")
-hs_uni_r = hs_and_uni_cov / (stat.stdev(hs_col_data) * stat.stdev(uni_col_data))
-print("Correlation coefficient: ", round(hs_uni_r, 4))
+# LINEAR REGRESSION
+# Examples: Trying to predict home prices or number of T-shirts to produce given some input set of features.
+def calc_lin_regression(x_data, y_data, given_x_point, xy_corr, graph_desc):
+    x_mean = sum(x_data) / len(x_data)
+    y_mean = sum(y_data) / len(y_data)
 
-# What would you expect the correlation between math and verbal SAT scores to be?
-math_and_verb_cov = calc_covariance(math_col_data, verb_col_data, "Math Mean", "Verbal Mean")
-math_and_verb_r = math_and_verb_cov / (stat.stdev(math_col_data) * stat.stdev(verb_col_data))
-print("Correlation coefficient: ", round(math_and_verb_r, 4))
+    # Find A and B with the respective formulas
+    a = (xy_corr * stat.stdev(y_data)) / stat.stdev(x_data)
+    b = y_mean - (a * x_mean)
+
+    print("a: ", a)
+    print("b: ", b)
+
+    # Predict Y with linear regression formula
+    y_point = a * given_x_point + b
+    print("Y point: ", y_point)
+
+    # Cast all data from string to float
+    x_data = [float(element) for element in x_data]
+
+    plt.scatter(x_data, y_data)
+    y_pre = np.multiply(a, x_data) + b
+    plt.plot(x_data, y_pre, label="Line", color="#a3435d")
+
+    # Plot the point onto the regression line
+    plt.plot(given_x_point, y_point, 'r*')
+    plt.xlabel(graph_desc[0])
+    plt.ylabel(graph_desc[1])
+    plt.title(graph_desc[2])
+
+    plt.show()
