@@ -51,7 +51,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 
 # My Modules
-import ID3_Algorithm
+import ID3_Classification
 import Regression
 
 # Run this function to test if everything is functioning correctly in the ID3 module! It uses the Play Tennis dataset
